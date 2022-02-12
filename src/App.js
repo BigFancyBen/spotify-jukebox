@@ -13,6 +13,7 @@ function App() {
       const response = await fetch('/auth/token');
       const json = await response.json();
       setToken(json.access_token);
+      console.log(token==='');
     }
 
     getToken();

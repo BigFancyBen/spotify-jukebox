@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import RecordPlayer from './RecordPlayer/RecordPlayer';
 
 const track = {
     name: "",
@@ -18,8 +19,10 @@ function WebPlayback(props) {
     const [is_active, setActive] = useState(false);
     const [player, setPlayer] = useState(undefined);
     const [device, setDevice] = useState(false);
-    const [current_track, setTrack] = useState(track);
-
+    const [currentTrack, setCurrentTrack] = useState(track);
+    const [currentAlbum, setCurrentAlbum] = useState(null);
+    const [currentAlbumColors, setCurrentAlbumColors] = useState(null);
+    
     useEffect(() => {
 
         const script = document.createElement("script");
@@ -53,7 +56,7 @@ function WebPlayback(props) {
                     return;
                 }
 
-                setTrack(state.track_window.current_track);
+                setCurrentTrack(state.track_window.current_track);
                 setPaused(state.paused);
 
                 player.getCurrentState().then( state => { 
@@ -67,6 +70,19 @@ function WebPlayback(props) {
     }, []);
 
     useEffect(() => {
+        const url = currentTrack.album.images[0].url
+        setCurrentAlbum(url);
+
+    }, [currentTrack]);
+
+    useEffect(() => {
+      if(currentAlbum === null){return;}
+      getAlbumColors(currentAlbum);
+
+    }, [currentAlbum]);
+    
+
+    useEffect(() => {
         if(device == false ){return;}
         fetch(`https://api.spotify.com/v1/me/player`, {
             "method": "PUT",
@@ -77,18 +93,34 @@ function WebPlayback(props) {
             "body":JSON.stringify({device_ids: [device]})
         })
     }, [device]);
+
+    useEffect(() => {
+      if(currentAlbumColors===null){return};
+
+    }, [currentAlbumColors])
+    
+
+    function getAlbumColors(albumUrl){
+      let albumBody = {"album": albumUrl};
+
+      fetch("http://localhost:5000/albumcolors", {
+        "method": "POST",
+        "headers": {
+            "Content-Type": "application/json"
+      },
+        "body": JSON.stringify(albumBody)
+      })
+      .then(function(response) {
+          return response.json();
+      }).then(function(data) {
+          setCurrentAlbumColors(data);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    }
     
     function hooch(){
-
-        // fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, {
-        //     method: 'PUT',
-        //     body: JSON.stringify({ uris: "spotify:album:39XRAKlA9dJ6wCVEDGxaDe" }),
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${props.token}`
-        //     },
-        // });
-
         fetch("https://api.spotify.com/v1/albums/1Ki56K82avE7nTkZEyVIE7", {
             "method": "GET",
             "headers": {
@@ -100,9 +132,6 @@ function WebPlayback(props) {
             return response.json();
         }).then(function(data) {
             console.log(data);
-            // const tracks = data.tracks.items.map(obj => {
-            //     return obj.uri
-            // })
             queueAlbum(data.tracks.items);
         })
         .catch(err => {
@@ -135,7 +164,7 @@ function WebPlayback(props) {
     }, [device]);
 
 
-    if (!is_active) { 
+    if (!is_active || !currentAlbumColors) { 
         return (
             <div>
                 <div className="container">
@@ -146,34 +175,7 @@ function WebPlayback(props) {
             </div>)
     } else {
         return (
-            <>
-                <div className="container">
-                    <div className="main-wrapper">
-
-                        <img src={current_track.album.images[0].url} className="now-playing__cover" alt="" />
-
-                        <div className="now-playing__side">
-                            <div className="now-playing__name">{current_track.name}</div>
-                            <div className="now-playing__artist">{current_track.artists[0].name}</div>
-
-                            <button className="btn-spotify" onClick={() => { player.previousTrack() }} >
-                                &lt;&lt;
-                            </button>
-
-                            <button className="btn-spotify" onClick={() => { player.togglePlay() }} >
-                                { is_paused ? "PLAY" : "PAUSE" }
-                            </button>
-
-                            <button className="btn-spotify" onClick={() => { player.nextTrack() }} >
-                                &gt;&gt;
-                            </button>
-                            <button className="btn-spotify" onClick={() => { hooch() }} >
-                                play album
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </>
+          <RecordPlayer colors={currentAlbumColors} track={currentTrack} album={currentAlbum} />
         );
     }
 }

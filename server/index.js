@@ -1,6 +1,9 @@
 const express = require('express')
 const request = require('request');
 const dotenv = require('dotenv');
+const bp = require('body-parser')
+const cors = require('cors')
+const getColors = require('get-image-colors')
 
 const port = 5000
 
@@ -24,6 +27,9 @@ var generateRandomString = function (length) {
 };
 
 var app = express();
+app.use(cors({origin: true}))
+app.use(bp.json())
+app.use(bp.urlencoded({ extended: true }))
 
 app.get('/auth/login', (req, res) => {
 
@@ -70,6 +76,20 @@ app.get('/auth/callback', (req, res) => {
 
 app.get('/auth/token', (req, res) => {
   res.json({ access_token: access_token})
+})
+
+app.post('/albumcolors', (req, res) => {
+  const url = req.body.album;
+  request({ url, encoding: null }, (err, resp, buffer) => {
+    if(!err && resp.statusCode === 200){
+      getColors(buffer, 'image/jpg').then(colors => {
+        const hexcolors = colors.map(color => color.hex());
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.json(hexcolors);
+      })
+    }
+  });
 })
 
 app.listen(port, () => {
