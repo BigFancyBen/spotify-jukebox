@@ -139,6 +139,27 @@ function WebPlayback(props) {
         });              
     }
 
+    async function searchSong(searchValue){
+      const query = encodeURIComponent(searchValue);
+      await fetch(`https://api.spotify.com/v1/search?query=${query}&type=track&market=US&limit=10&offset=0`, {
+        "method": "GET",
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${props.token}`
+        }
+      })
+      .then(response => {
+        response.json().then(parsedJson => {
+          console.log(parsedJson);
+          return parsedJson;
+        })
+    })
+      .catch(err => {
+        console.error(err);
+      });
+    }
+
     async function queueAlbum(songs){
         for(let i=0;i<songs.length;i++){
             await queueSong(songs[i].uri);
@@ -175,7 +196,7 @@ function WebPlayback(props) {
             </div>)
     } else {
         return (
-          <RecordPlayer colors={currentAlbumColors} track={currentTrack} album={currentAlbum} />
+          <RecordPlayer colors={currentAlbumColors} track={currentTrack} album={currentAlbum} queueSong={queueSong} searchSong={searchSong}/>
         );
     }
 }
