@@ -15,10 +15,8 @@ function Search(props) {
 
   async function handleSearch(){
     if(query===""){return;}
-    props.searchSong(query).then(parsedJson => {
-      console.log(parsedJson);
-      
-    })
+    const songs = await props.searchSong(query);
+    
   }
   
   return (

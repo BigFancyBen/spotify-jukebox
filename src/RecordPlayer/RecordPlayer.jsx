@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, {keyframes} from 'styled-components';
 import Search from '../Search/Search';
+import Dust from '../Dust/Dust';
 
 const gradient = keyframes`
 	0% {
@@ -22,6 +23,7 @@ const Outer = styled.div`
   left: 0;
   z-index: 2;
   animation: ${gradient} 15s ease-in-out infinite;
+  transition: all .5s ease-in-out;
 `;
 
 const AlbumWrapper = styled.div`
@@ -86,7 +88,7 @@ const PalletteItem = styled.div`
 `;
 
 function RecordPlayer(props) {
-
+  //      <Search searchSong={props.searchSong} queueSong={props.queueSong} />
   return (
     <Outer style={{backgroundImage:`linear-gradient( ${props.colors[1]}, ${props.colors[0]})`, backgroundSize:"200% 200%"}}>
       <Texture src="paper.jpg" />
@@ -99,7 +101,7 @@ function RecordPlayer(props) {
           <PalletteItem key={index} style={{backgroundColor:`${color}`}}/>
         )}
       </PalletteWrapper>
-      <Search searchSong={props.searchSong} queueSong={props.queueSong} />
+      <Dust colors={props.colors}/>
     </Outer>
   );
 }

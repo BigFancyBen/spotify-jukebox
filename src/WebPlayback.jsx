@@ -150,6 +150,7 @@ function WebPlayback(props) {
         }
       })
       .then(response => {
+          return response;
         response.json().then(parsedJson => {
           console.log(parsedJson);
           return parsedJson;
