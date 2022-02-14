@@ -44,8 +44,6 @@ app.get('/auth/login', (req, res) => {
     state: state
   })
 
-  console.log("yo we in the auth");
-
   res.redirect('https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString());
 })
 
@@ -88,6 +86,8 @@ app.post('/albumcolors', (req, res) => {
         const hexcolors = colors.map(color => color.hex());
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
         res.json(hexcolors);
       })
     }
