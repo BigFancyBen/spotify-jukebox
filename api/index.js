@@ -44,6 +44,8 @@ app.get('/auth/login', (req, res) => {
     state: state
   })
 
+  console.log("yo we in the auth");
+
   res.redirect('https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString());
 })
 
