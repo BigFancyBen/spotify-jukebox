@@ -1,9 +1,10 @@
 const express = require('express')
 const request = require('request');
 const dotenv = require('dotenv');
-const bp = require('body-parser')
-const cors = require('cors')
-const getColors = require('get-image-colors')
+const bp = require('body-parser');
+const path = require('path');
+const cors = require('cors');
+const getColors = require('get-image-colors');
 
 const port = 5000
 
@@ -30,6 +31,10 @@ var app = express();
 app.use(cors({origin: true}))
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
 
 app.get('/auth/login', (req, res) => {
 
@@ -86,8 +91,6 @@ app.post('/albumcolors', (req, res) => {
         const hexcolors = colors.map(color => color.hex());
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
         res.json(hexcolors);
       })
     }
